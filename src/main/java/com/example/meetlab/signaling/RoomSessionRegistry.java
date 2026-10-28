@@ -76,6 +76,10 @@ public class RoomSessionRegistry {
         return members == null ? 0 : members.size();
     }
 
+    public synchronized int roomCount() {
+        return rooms.size();
+    }
+
     public synchronized int totalPeers() {
         return roomByPeer.size();
     }

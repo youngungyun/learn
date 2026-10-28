@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import com.example.meetlab.room.domain.Room;
 import com.example.meetlab.room.exception.RoomNotFoundException;
 import com.example.meetlab.room.service.RoomService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +21,17 @@ class SignalingServiceTest {
 
     private RoomService roomService;
     private SignalingService service;
+    private RoomSessionRegistry registry;
+    private SimpleMeterRegistry meters;
 
     @BeforeEach
     void setUp() {
         roomService = mock(RoomService.class);
         given(roomService.get(ROOM)).willReturn(new Room(ROOM, "demo", 2, Instant.parse("2026-10-29T00:00:00Z")));
         given(roomService.get("nope-nope-non")).willThrow(new RoomNotFoundException("nope-nope-non"));
-        service = new SignalingService(roomService, new RoomSessionRegistry());
+        registry = new RoomSessionRegistry();
+        meters = new SimpleMeterRegistry();
+        service = new SignalingService(roomService, registry, new SignalingMetrics(meters, registry));
     }
 
     private static ClientMessage join(String room, String name) {
@@ -169,5 +174,46 @@ class SignalingServiceTest {
 
         service.handle(a, new ClientMessage("dance", null, null, null, null));
         assertThat(a.last().code()).isEqualTo("UNKNOWN_TYPE");
+    }
+
+    @Test
+    void recordsMessageCountsAndJoinOutcomes() {
+        service.handle(new FakeConnection("a"), join(ROOM, "A"));
+        service.handle(new FakeConnection("b"), join(ROOM, "B"));
+        service.handle(new FakeConnection("c"), join(ROOM, "C"));
+        service.handle(new FakeConnection("d"), join("nope-nope-non", "D"));
+
+        assertThat(meters.get("meetlab.signaling.messages").tag("type", "join").counter().count()).isEqualTo(4.0);
+        assertThat(meters.get("meetlab.join.successes").counter().count()).isEqualTo(2.0);
+        assertThat(meters.get("meetlab.join.rejections").tag("reason", "full_or_duplicate").counter().count())
+                .isEqualTo(1.0);
+        assertThat(meters.get("meetlab.join.rejections").tag("reason", "room_not_found").counter().count())
+                .isEqualTo(1.0);
+        assertThat(meters.get("meetlab.signaling.handle").tag("type", "join").timer().count()).isEqualTo(4L);
+    }
+
+    @Test
+    void gaugesFollowRegistryState() {
+        FakeConnection a = new FakeConnection("a");
+        service.handle(a, join(ROOM, "A"));
+        service.handle(new FakeConnection("b"), join(ROOM, "B"));
+
+        assertThat(meters.get("meetlab.peers.active").gauge().value()).isEqualTo(2.0);
+        assertThat(meters.get("meetlab.rooms.active").gauge().value()).isEqualTo(1.0);
+
+        service.disconnected(a);
+
+        assertThat(meters.get("meetlab.peers.active").gauge().value()).isEqualTo(1.0);
+    }
+
+    @Test
+    void unknownTypeIsBucketedToAvoidHighCardinalityTags() {
+        FakeConnection a = new FakeConnection("a");
+
+        service.handle(a, new ClientMessage("dance-1", null, null, null, null));
+        service.handle(a, new ClientMessage("dance-2", null, null, null, null));
+
+        assertThat(meters.get("meetlab.signaling.messages").tag("type", "unknown").counter().count()).isEqualTo(2.0);
+        assertThat(meters.find("meetlab.signaling.messages").counters()).hasSize(1);
     }
 }

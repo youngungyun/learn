@@ -43,3 +43,13 @@ docker compose up -d coturn          # STUN/TURN
 ./gradlew bootTestRun     # docker compose 없이 Testcontainers DB 로 앱 실행
 docker compose up -d postgres && ./gradlew bootRun   # compose 의 DB 로 실행
 ```
+
+## stage 3 실행 방법 (모니터링)
+
+```bash
+docker compose up -d postgres prometheus grafana
+./gradlew bootRun
+# 앱 지표      http://localhost:8080/actuator/prometheus
+# Prometheus   http://localhost:9090   (Status > Targets 에서 meetlab 이 UP 인지 확인)
+# Grafana      http://localhost:3000   (admin / admin, "meetlab 개요" 대시보드)
+```

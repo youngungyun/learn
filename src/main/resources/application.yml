@@ -28,3 +28,22 @@ meetlab:
     # coturn의 static-auth-secret 과 반드시 같아야 한다. 운영에서는 환경변수로만 주입한다.
     turn-secret: ${TURN_SECRET:dev-only-turn-secret-change-me}
     credential-ttl: 1h
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # 학습용으로 앱 포트에서 같이 노출한다. 운영에서는 management.server.port 로 분리하고 외부에 열지 않는다.
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      # 모든 지표에 붙는 공통 태그. 여러 서비스를 한 Prometheus 로 모을 때 구분 기준이 된다.
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        # 히스토그램 버킷을 내보내야 Prometheus 에서 histogram_quantile 로 p95/p99 를 계산할 수 있다.
+        http.server.requests: true

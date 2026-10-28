@@ -96,6 +96,34 @@ async function onCandidate(from, candidate) {
   }
 }
 
+// 5초마다 통화 품질(RTT, 손실, 지터)을 뽑아 서버로 보낸다. 서버는 이를 Prometheus 지표로 만든다.
+async function reportStats(entry) {
+  const report = await entry.pc.getStats();
+  let pair = null;
+  let inbound = null;
+  report.forEach((stat) => {
+    if (stat.type === 'candidate-pair' && stat.state === 'succeeded' && stat.nominated) pair = stat;
+    if (stat.type === 'inbound-rtp' && stat.kind === 'video') inbound = stat;
+  });
+  if (!pair || !inbound || pair.currentRoundTripTime == null) return;
+  const local = report.get(pair.localCandidateId);
+  const received = inbound.packetsReceived + inbound.packetsLost;
+  await fetch('/api/telemetry/webrtc', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      candidateType: local?.candidateType ?? 'host',
+      rttMs: pair.currentRoundTripTime * 1000,
+      packetLossRatio: received > 0 ? Math.min(1, inbound.packetsLost / received) : 0,
+      jitterMs: (inbound.jitter ?? 0) * 1000,
+    }),
+  });
+}
+
+setInterval(() => {
+  peers.forEach((entry) => reportStats(entry).catch(() => { /* 보고 실패가 통화를 막으면 안 된다 */ }));
+}, 5000);
+
 function removePeer(peerId) {
   const entry = peers.get(peerId);
   if (!entry) return;

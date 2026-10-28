@@ -35,6 +35,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    // stage 3: 지표 수집(Actuator + Micrometer)과 Prometheus 형식 노출
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     // stage 2: H2 대신 운영과 같은 PostgreSQL 을 쓰고, 스키마는 Flyway 마이그레이션으로 관리한다.
     implementation("org.springframework.boot:spring-boot-starter-flyway")

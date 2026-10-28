@@ -26,10 +26,12 @@ public class SignalingService {
 
     private final RoomService roomService;
     private final RoomSessionRegistry registry;
+    private final SignalingMetrics metrics;
 
-    public SignalingService(RoomService roomService, RoomSessionRegistry registry) {
+    public SignalingService(RoomService roomService, RoomSessionRegistry registry, SignalingMetrics metrics) {
         this.roomService = roomService;
         this.registry = registry;
+        this.metrics = metrics;
     }
 
     public void handle(PeerConnection from, ClientMessage message) {
@@ -37,6 +39,10 @@ public class SignalingService {
             from.send(ServerMessage.error("BAD_REQUEST", "type 이 필요합니다."));
             return;
         }
+        metrics.record(message.type(), () -> dispatch(from, message));
+    }
+
+    private void dispatch(PeerConnection from, ClientMessage message) {
         switch (message.type()) {
             case SignalingTypes.JOIN -> join(from, message);
             case SignalingTypes.LEAVE -> disconnected(from);
@@ -60,6 +66,7 @@ public class SignalingService {
         try {
             room = roomService.get(message.room());
         } catch (RoomNotFoundException e) {
+            metrics.joinRejected("room_not_found");
             from.send(ServerMessage.error("ROOM_NOT_FOUND", "존재하지 않는 방입니다."));
             return;
         }
@@ -67,10 +74,12 @@ public class SignalingService {
         Member member = new Member(from, sanitize(message.displayName(), from.id()));
         Optional<JoinResult> result = registry.join(room.getCode(), room.getMaxParticipants(), member);
         if (result.isEmpty()) {
+            metrics.joinRejected("full_or_duplicate");
             from.send(ServerMessage.error("JOIN_REJECTED", "방이 가득 찼거나 이미 입장한 상태입니다."));
             return;
         }
 
+        metrics.joinSucceeded();
         List<PeerInfo> existing = result.get().existing().stream().map(Member::info).toList();
         from.send(ServerMessage.joined(from.id(), existing));
         ServerMessage joined = ServerMessage.peerJoined(member.info());
