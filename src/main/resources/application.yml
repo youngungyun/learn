@@ -6,3 +6,17 @@ spring:
 
 server:
   shutdown: graceful
+
+meetlab:
+  ice:
+    # 브라우저가 자신의 공인 주소를 알아내는 데 쓰는 STUN 서버
+    stun-urls:
+      - stun:localhost:3478
+      - stun:stun.l.google.com:19302
+    # STUN만으로 연결되지 않는 네트워크(대칭형 NAT 등)에서 미디어를 중계하는 TURN 서버(coturn)
+    turn-urls:
+      - turn:localhost:3478?transport=udp
+      - turn:localhost:3478?transport=tcp
+    # coturn의 static-auth-secret 과 반드시 같아야 한다. 운영에서는 환경변수로만 주입한다.
+    turn-secret: ${TURN_SECRET:dev-only-turn-secret-change-me}
+    credential-ttl: 1h

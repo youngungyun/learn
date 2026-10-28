@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>meetlab</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>meetlab</h1>
+    <form id="join-form">
+      <input id="room-code" placeholder="방 코드 (abc-defg-hij)" required>
+      <input id="display-name" placeholder="이름" maxlength="30">
+      <button type="submit">입장</button>
+      <button type="button" id="create-room">방 만들기</button>
+      <button type="button" id="leave" disabled>나가기</button>
+    </form>
+    <p id="status" role="status"></p>
+  </header>
+  <main id="videos">
+    <figure><video id="local" autoplay muted playsinline></video><figcaption>나</figcaption></figure>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

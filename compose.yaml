@@ -1,0 +1,19 @@
+# 로컬 개발용 인프라. 단계가 올라갈수록 서비스가 추가된다.
+services:
+  coturn:
+    image: coturn/coturn:4.18.0
+    # 로컬에서는 relay 포트 범위가 넓으면 Docker 가 느려지므로 좁게 잡는다.
+    network_mode: host
+    command:
+      - -n
+      - --log-file=stdout
+      - --listening-port=3478
+      - --realm=meetlab.local
+      - --use-auth-secret
+      - --static-auth-secret=${TURN_SECRET:-dev-only-turn-secret-change-me}
+      - --min-port=49160
+      - --max-port=49200
+      - --fingerprint
+      - --no-cli
+      - --no-tls
+      - --no-dtls

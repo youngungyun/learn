@@ -1,0 +1,11 @@
+body { font-family: system-ui, sans-serif; margin: 0; background: #111; color: #eee; }
+header { padding: 12px 16px; background: #1c1c1c; }
+h1 { margin: 0 0 8px; font-size: 18px; }
+form { display: flex; gap: 8px; flex-wrap: wrap; }
+input, button { padding: 6px 10px; border-radius: 4px; border: 1px solid #444; background: #262626; color: inherit; }
+button:disabled { opacity: .5; }
+#status { margin: 8px 0 0; min-height: 1.2em; color: #9cd; }
+#videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; padding: 8px; }
+figure { margin: 0; position: relative; }
+video { width: 100%; background: #000; border-radius: 6px; }
+figcaption { position: absolute; left: 8px; bottom: 8px; background: #000a; padding: 2px 6px; border-radius: 4px; font-size: 13px; }

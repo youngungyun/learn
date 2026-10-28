@@ -25,3 +25,13 @@ WebRTC 화상 통화용 시그널링 서버를 단계별로 만들면서 품질,
 ./gradlew clean check          # 테스트 + 커버리지 기준 + Checkstyle + SpotBugs
 ./gradlew bootRun              # 서버 실행 (http://localhost:8080)
 ```
+
+## stage 1 실행 방법 (WebRTC)
+
+```bash
+cp .env.example .env
+docker compose up -d coturn          # STUN/TURN
+./gradlew bootRun                    # http://localhost:8080
+```
+
+브라우저 탭 두 개에서 `http://localhost:8080` 을 열고, 한쪽에서 "방 만들기" 후 같은 코드로 두 탭이 입장한다.
