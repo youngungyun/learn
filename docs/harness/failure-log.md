@@ -18,6 +18,8 @@
 | F-008 | "끝났다"고 보고했지만 `check` 는 실패 상태였다 | 완료 선언을 검증 없이 수용 | 끝내기 전에 `check` 강제 | `stop_gate.py` (Stop 훅) |
 | F-009 | 컨트롤러가 Repository 를 직접 부르기 시작하면 트랜잭션·검증 규칙이 우회된다 | 계층 경계 약화 | 컨트롤러 → 서비스 → 리포지토리 | `ArchitectureRulesTest` |
 | F-010 | Boot 4 에서 `TestRestTemplate`·슬라이스 테스트 패키지가 바뀌어 예전 코드가 컴파일되지 않는다 | 메이저 버전 변경 | 통합 테스트는 JDK `HttpClient` 사용, 슬라이스 패키지는 AGENTS.md "알려진 함정" 참고 | AGENTS.md |
+| F-011 | 검색 서버 장애가 방 만들기까지 실패시킬 수 있었다 | 색인을 DB 트랜잭션 안에서 동기 호출 | 색인은 커밋 후(AFTER_COMMIT) 이벤트로 하고 실패는 지표로만 남긴다. 복구는 재색인 | `RoomIndexerTest`, `RoomSearchIntegrationTest` |
+| F-012 | 검색어의 따옴표가 JSON 질의 구조를 깨뜨릴 수 있다 | 사용자 입력을 질의 문자열에 직접 삽입 | 검색어는 정리(`QuerySanitizer`) 후 사용 | `QuerySanitizerTest` |
 
 ## 새 항목을 추가하는 법
 

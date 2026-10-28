@@ -35,6 +35,23 @@ services:
       - --no-tls
       - --no-dtls
 
+  elasticsearch:
+    build: ./elasticsearch   # nori 플러그인이 들어간 이미지(Testcontainers 테스트와 같은 Dockerfile)
+    environment:
+      discovery.type: single-node
+      # 로컬 학습 전용. 보안(인증/TLS)을 껐으므로 포트를 외부에 노출하는 환경에서는 쓰지 않는다.
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
   prometheus:
     image: prom/prometheus:v3.14.0
     # k6 가 결과를 remote write 로 밀어 넣을 수 있도록 수신 기능을 켠다. 기본 command 를 덮어쓰므로 설정 파일 경로도 다시 적는다.
@@ -81,3 +98,4 @@ services:
 volumes:
   postgres_data:
   grafana_data:
+  es_data:

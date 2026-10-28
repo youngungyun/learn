@@ -1,0 +1,19 @@
+{
+  "properties": {
+    "code": { "type": "keyword" },
+    "name": {
+      "type": "text",
+      "analyzer": "korean",
+      "fields": {
+        "prefix": {
+          "type": "text",
+          "analyzer": "korean_prefix",
+          "search_analyzer": "korean_prefix_search"
+        },
+        "raw": { "type": "keyword" }
+      }
+    },
+    "maxParticipants": { "type": "integer" },
+    "createdAt": { "type": "date", "format": "epoch_millis" }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "index": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "analysis": {
+    "tokenizer": {
+      "nori_mixed": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed"
+      }
+    },
+    "filter": {
+      "prefix_edge": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 10
+      }
+    },
+    "analyzer": {
+      "korean": {
+        "type": "custom",
+        "tokenizer": "nori_mixed",
+        "filter": ["lowercase", "nori_readingform", "nori_part_of_speech"]
+      },
+      "korean_prefix": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": ["lowercase", "prefix_edge"]
+      },
+      "korean_prefix_search": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": ["lowercase"]
+      }
+    }
+  }
+}

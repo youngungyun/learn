@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import com.example.meetlab.room.RoomFixture;
 import com.example.meetlab.room.domain.Room;
 import com.example.meetlab.room.domain.RoomCodeGenerator;
+import com.example.meetlab.room.domain.RoomCreatedEvent;
 import com.example.meetlab.room.domain.RoomRepository;
 import com.example.meetlab.room.exception.RoomNotFoundException;
 import java.time.Clock;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RoomService")
@@ -37,12 +39,15 @@ class RoomServiceTest {
     @Mock
     private RoomCodeGenerator codeGenerator;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private RoomService roomService;
 
     @BeforeEach
     void setUp() {
         Clock fixedClock = Clock.fixed(RoomFixture.NOW, ZoneOffset.UTC);
-        roomService = new RoomService(roomRepository, codeGenerator, fixedClock);
+        roomService = new RoomService(roomRepository, codeGenerator, fixedClock, eventPublisher);
     }
 
     @Test
@@ -138,5 +143,21 @@ class RoomServiceTest {
         given(roomRepository.findTop10ByOrderByCreatedAtDesc()).willReturn(rooms);
 
         assertThat(roomService.recent()).isEqualTo(rooms);
+    }
+
+    @Test
+    @DisplayName("방을 만들면 RoomCreatedEvent 를 발행한다")
+    void createPublishesRoomCreatedEvent() {
+        given(codeGenerator.generate()).willReturn("abc-defg-hij");
+        given(roomRepository.existsById("abc-defg-hij")).willReturn(false);
+        given(roomRepository.save(any(Room.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+        roomService.create("주간 회의", 3);
+
+        ArgumentCaptor<RoomCreatedEvent> captor = ArgumentCaptor.forClass(RoomCreatedEvent.class);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        assertThat(captor.getValue().code()).isEqualTo("abc-defg-hij");
+        assertThat(captor.getValue().name()).isEqualTo("주간 회의");
+        assertThat(captor.getValue().createdAt()).isEqualTo(RoomFixture.NOW);
     }
 }

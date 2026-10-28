@@ -2,7 +2,7 @@ package com.example.meetlab.signaling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.meetlab.TestcontainersConfiguration;
+import com.example.meetlab.IntegrationTest;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -14,14 +14,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /** 실제 서버를 띄워 WebSocket 두 개가 방 하나에서 시그널링을 주고받는지 확인한다. */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestcontainersConfiguration.class)
+@IntegrationTest
 class SignalingWebSocketIntegrationTest {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();

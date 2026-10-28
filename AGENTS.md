@@ -23,7 +23,8 @@ com.example.meetlab
 ├─ room        방 도메인  (domain → service → web 방향으로만 의존)
 ├─ signaling   WebSocket 시그널링 (room.service 만 사용)
 ├─ ice         STUN/TURN 설정과 TURN 임시 자격 증명
-└─ telemetry   브라우저가 보고하는 통화 품질 지표
+├─ telemetry   브라우저가 보고하는 통화 품질 지표
+└─ search      Elasticsearch 방 검색 (room 이벤트를 구독해 색인, room 은 search 를 모른다)
 ```
 
 - 의존 방향은 ArchUnit(`ArchitectureRulesTest`)이 검사한다. 패키지 간 순환 금지.
@@ -34,6 +35,7 @@ com.example.meetlab
 
 - 의존성 주입은 생성자 주입만. 필드 `@Autowired` 금지.
 - 로그는 SLF4J. `System.out`, `java.util.logging` 금지.
+- 검색어는 `QuerySanitizer` 를 거친 뒤에만 JSON 질의(`@Query`)에 넣는다.
 - 지표 태그 값은 **닫힌 집합**만. 방 코드·peer id·클라이언트가 보낸 임의 문자열을 태그로 쓰지 않는다.
 - 외부에서 온 값은 검증한 뒤에만 지표/로그/DB 에 쓴다. 검증은 Bean Validation(`@Valid`) 으로.
 - 스키마 변경은 새 Flyway 파일(`V{다음번호}__설명.sql`) 추가로만. **이미 있는 V 파일은 수정 금지.**

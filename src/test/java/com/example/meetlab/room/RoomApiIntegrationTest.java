@@ -2,7 +2,7 @@ package com.example.meetlab.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.meetlab.TestcontainersConfiguration;
+import com.example.meetlab.IntegrationTest;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -10,16 +10,13 @@ import java.net.http.HttpResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
  * 컨트롤러 -> 서비스 -> JPA -> PostgreSQL 까지 실제 HTTP 로 통과시키는 통합 테스트.
  * 슬라이스 테스트가 놓치는 "조립" 문제(빈 설정, 마이그레이션, 직렬화)를 잡는다.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestcontainersConfiguration.class)
+@IntegrationTest
 @DisplayName("방 API 통합 테스트")
 class RoomApiIntegrationTest {
 

@@ -72,3 +72,14 @@ python3 -m unittest harness/test_hooks.py -v   # 훅 스크립트 단위 테스�
 ./gradlew test --tests '*ArchitectureRulesTest' --tests '*HarnessFilesTest'
 claude    # 프로젝트 루트에서 Claude Code 를 실행하면 AGENTS.md 와 .claude/settings.json 의 훅이 적용된다
 ```
+
+## stage 6 실행 방법 (Elasticsearch)
+
+```bash
+docker compose up -d --build postgres elasticsearch   # nori 포함 이미지를 빌드한다(첫 실행은 수 분)
+./gradlew bootRun
+curl -XPOST localhost:8080/api/rooms -H 'Content-Type: application/json' -d '{"name":"화상 회의실"}'
+curl 'localhost:8080/api/search/rooms?q=회의'
+curl -XPOST localhost:8080/api/search/rooms/reindex     # DB 기준 전체 재색인
+curl -XPOST 'localhost:9200/rooms/_analyze' -H 'Content-Type: application/json' -d '{"analyzer":"korean","text":"화상회의실"}'
+```
