@@ -53,6 +53,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
+    // stage 5: 구조 규칙을 코드로 검사한다. 코어 API만 쓰고 JUnit 엔진 모듈은 쓰지 않는다.
+    testImplementation("com.tngtech.archunit:archunit:1.5.1")
     // Gradle 9부터는 JUnit Platform Launcher를 직접 선언해야 한다.
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

@@ -64,3 +64,11 @@ docker compose run --rm k6 run -o experimental-prometheus-rw /scripts/smoke.js
 docker compose run --rm k6 run -o experimental-prometheus-rw /scripts/api-load.js
 docker compose run --rm k6 run -o experimental-prometheus-rw /scripts/signaling-load.js
 ```
+
+## stage 5 실행 방법 (하네스 엔지니어링)
+
+```bash
+python3 -m unittest harness/test_hooks.py -v   # 훅 스크립트 단위 테스트(Docker/Gradle 불필요)
+./gradlew test --tests '*ArchitectureRulesTest' --tests '*HarnessFilesTest'
+claude    # 프로젝트 루트에서 Claude Code 를 실행하면 AGENTS.md 와 .claude/settings.json 의 훅이 적용된다
+```
