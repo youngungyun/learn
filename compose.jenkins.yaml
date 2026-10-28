@@ -14,6 +14,11 @@ services:
       - "50000:50000"
     environment:
       JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+      # Testcontainers 가 만든 컨테이너는 호스트 도커 위에 "형제"로 뜬다.
+      # Jenkins 컨테이너 안에서는 localhost 가 아니라 호스트 게이트웨이로 접속해야 한다.
+      TESTCONTAINERS_HOST_OVERRIDE: host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - jenkins_home:/var/jenkins_home
       # 빌드 대상 저장소(읽기 전용). Jenkins는 이 경로를 git clone 한다. 커밋된 내용만 빌드된다.

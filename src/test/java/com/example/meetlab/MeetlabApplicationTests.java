@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 
 /**
  * 전체 컨텍스트를 올리는 스모크 테스트. 빈 설정이 깨졌는지 가장 빨리 알려 준다.
  */
 @SpringBootTest
+@Import(TestcontainersConfiguration.class)
 @DisplayName("애플리케이션 컨텍스트")
 class MeetlabApplicationTests {
 

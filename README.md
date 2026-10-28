@@ -35,3 +35,11 @@ docker compose up -d coturn          # STUN/TURN
 ```
 
 브라우저 탭 두 개에서 `http://localhost:8080` 을 열고, 한쪽에서 "방 만들기" 후 같은 코드로 두 탭이 입장한다.
+
+## stage 2 실행 방법 (Testcontainers)
+
+```bash
+./gradlew test            # Docker 가 떠 있어야 한다. PostgreSQL 18 컨테이너가 자동으로 뜬다.
+./gradlew bootTestRun     # docker compose 없이 Testcontainers DB 로 앱 실행
+docker compose up -d postgres && ./gradlew bootRun   # compose 의 DB 로 실행
+```

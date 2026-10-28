@@ -36,13 +36,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-    runtimeOnly("com.h2database:h2")
+    // stage 2: H2 대신 운영과 같은 PostgreSQL 을 쓰고, 스키마는 Flyway 마이그레이션으로 관리한다.
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
 
     // JUnit 6, AssertJ, Mockito, Spring Test가 함께 들어 있다.
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // Spring Boot 4부터 슬라이스 테스트(@WebMvcTest, @DataJpaTest)는 기술별 테스트 스타터로 분리되었다.
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    // stage 2: 테스트에서 진짜 PostgreSQL 컨테이너를 띄운다. 버전은 Spring Boot BOM 이 관리한다.
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
     // Gradle 9부터는 JUnit Platform Launcher를 직접 선언해야 한다.
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
