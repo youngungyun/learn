@@ -24,6 +24,7 @@ com.example.meetlab
 ├─ signaling   WebSocket 시그널링 (room.service 만 사용)
 ├─ ice         STUN/TURN 설정과 TURN 임시 자격 증명
 ├─ telemetry   브라우저가 보고하는 통화 품질 지표
+├─ logging     요청 ID(MDC) 필터
 └─ search      Elasticsearch 방 검색 (room 이벤트를 구독해 색인, room 은 search 를 모른다)
 ```
 
@@ -35,6 +36,7 @@ com.example.meetlab
 
 - 의존성 주입은 생성자 주입만. 필드 `@Autowired` 금지.
 - 로그는 SLF4J. `System.out`, `java.util.logging` 금지.
+- 로그에는 구조화 필드를 쓴다: `LOG.atInfo().addKeyValue("room", code).log("입장")`. 문자열 이어붙이기로 값을 넣지 않는다. MDC 는 넣은 곳에서 `finally` 로 반드시 지운다.
 - 검색어는 `QuerySanitizer` 를 거친 뒤에만 JSON 질의(`@Query`)에 넣는다.
 - 지표 태그 값은 **닫힌 집합**만. 방 코드·peer id·클라이언트가 보낸 임의 문자열을 태그로 쓰지 않는다.
 - 외부에서 온 값은 검증한 뒤에만 지표/로그/DB 에 쓴다. 검증은 Bean Validation(`@Valid`) 으로.

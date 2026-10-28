@@ -20,6 +20,7 @@
 | F-010 | Boot 4 에서 `TestRestTemplate`·슬라이스 테스트 패키지가 바뀌어 예전 코드가 컴파일되지 않는다 | 메이저 버전 변경 | 통합 테스트는 JDK `HttpClient` 사용, 슬라이스 패키지는 AGENTS.md "알려진 함정" 참고 | AGENTS.md |
 | F-011 | 검색 서버 장애가 방 만들기까지 실패시킬 수 있었다 | 색인을 DB 트랜잭션 안에서 동기 호출 | 색인은 커밋 후(AFTER_COMMIT) 이벤트로 하고 실패는 지표로만 남긴다. 복구는 재색인 | `RoomIndexerTest`, `RoomSearchIntegrationTest` |
 | F-012 | 검색어의 따옴표가 JSON 질의 구조를 깨뜨릴 수 있다 | 사용자 입력을 질의 문자열에 직접 삽입 | 검색어는 정리(`QuerySanitizer`) 후 사용 | `QuerySanitizerTest` |
+| F-013 | 클라이언트가 보낸 X-Request-Id 에 줄바꿈·JSON 을 넣어 로그를 위조하거나, MDC 를 안 지워 다음 요청 로그에 이전 ID 가 붙을 수 있다 | 로그에 들어가는 외부 입력 미검증, 스레드 재사용 | 외부 ID 는 형식 검증 후 사용, MDC 는 finally 에서 반드시 제거 | `RequestIdFilterTest` |
 
 ## 새 항목을 추가하는 법
 

@@ -17,6 +17,23 @@ spring:
 server:
   shutdown: graceful
 
+logging:
+  file:
+    name: logs/meetlab.log
+  logback:
+    rollingpolicy:
+      max-file-size: 20MB
+      max-history: 7
+      total-size-cap: 200MB
+  structured:
+    format:
+      # 콘솔은 사람이 읽기 좋은 기본 형식을 쓰고, 파일은 ELK 가 읽기 좋은 ECS JSON(한 줄에 한 건)으로 남긴다.
+      file: ecs
+    ecs:
+      service:
+        environment: ${APP_ENV:local}
+        version: 0.0.1
+
 meetlab:
   ice:
     # 브라우저가 자신의 공인 주소를 알아내는 데 쓰는 STUN 서버

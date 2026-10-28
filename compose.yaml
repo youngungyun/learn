@@ -52,6 +52,43 @@ services:
       timeout: 5s
       retries: 20
 
+  # ---- ELK 로그 파이프라인 (profile: elk) -------------------------------------------------
+  # 앱(logs/meetlab.log, ECS JSON) -> Filebeat -> Logstash -> Elasticsearch -> Kibana
+  # 메모리를 많이 쓰므로 필요할 때만 `docker compose --profile elk up -d` 로 띄운다.
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.4.8
+    profiles: ["elk"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx512m
+    volumes:
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:9.4.8
+    profiles: ["elk"]
+    user: root
+    depends_on:
+      - logstash
+    # 호스트에서 마운트한 설정 파일은 소유자 검사에 걸리므로 --strict.perms=false 로 끈다(로컬 학습용).
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - ./elk/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/logs:ro
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.4.8
+    profiles: ["elk"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+
   prometheus:
     image: prom/prometheus:v3.14.0
     # k6 가 결과를 remote write 로 밀어 넣을 수 있도록 수신 기능을 켠다. 기본 command 를 덮어쓰므로 설정 파일 경로도 다시 적는다.

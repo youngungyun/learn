@@ -1,0 +1,19 @@
+# 앱이 남기는 ECS JSON 로그 파일(./logs/*.log)을 읽어 Logstash 로 보낸다.
+filebeat.inputs:
+  - type: filestream
+    id: meetlab-app
+    paths:
+      - /logs/*.log
+    parsers:
+      - ndjson:
+          # 앱의 JSON 을 루트에 풀면 Filebeat 가 붙이는 log.file.path 와 앱의 log.level 이 충돌한다.
+          # 그래서 "app" 아래에 풀어 두고, Logstash 에서 필요한 필드만 ECS 위치로 올린다.
+          target: "app"
+          # "log.level" 처럼 점이 든 키를 중첩 객체(log → level)로 펼친다.
+          expand_keys: true
+          add_error_key: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+logging.level: info

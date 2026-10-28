@@ -57,7 +57,11 @@ public class SignalingService {
         remaining.ifPresent(members -> {
             ServerMessage left = ServerMessage.peerLeft(connection.id());
             members.forEach(member -> member.connection().send(left));
-            LOG.info("퇴장: peerId={}, 남은 인원={}", connection.id(), members.size());
+            LOG.atInfo()
+                    .addKeyValue("event", "peer_left")
+                    .addKeyValue("peer_id", connection.id())
+                    .addKeyValue("remaining_peers", members.size())
+                    .log("퇴장");
         });
     }
 
@@ -75,6 +79,11 @@ public class SignalingService {
         Optional<JoinResult> result = registry.join(room.getCode(), room.getMaxParticipants(), member);
         if (result.isEmpty()) {
             metrics.joinRejected("full_or_duplicate");
+            LOG.atWarn()
+                    .addKeyValue("event", "join_rejected")
+                    .addKeyValue("room", room.getCode())
+                    .addKeyValue("peer_id", from.id())
+                    .log("입장 거절(정원 초과 또는 중복 입장)");
             from.send(ServerMessage.error("JOIN_REJECTED", "방이 가득 찼거나 이미 입장한 상태입니다."));
             return;
         }
@@ -84,7 +93,12 @@ public class SignalingService {
         from.send(ServerMessage.joined(from.id(), existing));
         ServerMessage joined = ServerMessage.peerJoined(member.info());
         result.get().existing().forEach(other -> other.connection().send(joined));
-        LOG.info("입장: room={}, peerId={}, 기존 인원={}", room.getCode(), from.id(), existing.size());
+        LOG.atInfo()
+                .addKeyValue("event", "peer_joined")
+                .addKeyValue("room", room.getCode())
+                .addKeyValue("peer_id", from.id())
+                .addKeyValue("existing_peers", existing.size())
+                .log("입장");
     }
 
     private void relay(PeerConnection from, ClientMessage message) {

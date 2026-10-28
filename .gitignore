@@ -1,7 +1,8 @@
 .gradle/
 build/
 out/
-logs/
+logs/*
+!logs/.gitkeep
 .env
 !gradle/wrapper/gradle-wrapper.jar
 

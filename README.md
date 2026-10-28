@@ -83,3 +83,13 @@ curl 'localhost:8080/api/search/rooms?q=회의'
 curl -XPOST localhost:8080/api/search/rooms/reindex     # DB 기준 전체 재색인
 curl -XPOST 'localhost:9200/rooms/_analyze' -H 'Content-Type: application/json' -d '{"analyzer":"korean","text":"화상회의실"}'
 ```
+
+## stage 7 실행 방법 (ELK 로그)
+
+```bash
+docker compose --profile elk up -d --build   # elasticsearch + logstash + filebeat + kibana (메모리 6GB 이상 권장)
+./gradlew bootRun                            # logs/meetlab.log 에 ECS JSON 로그가 쌓인다
+elk/kibana/setup-data-view.sh                # Kibana 데이터 뷰 생성(최초 1회)
+# http://localhost:5601/app/discover  →  KQL 예) room : "abc-defg-hij"   /   log.level : "ERROR"
+python3 -m unittest elk/test_pipeline_mapping.py -v   # Logstash 필드 매핑 검증(도커 불필요)
+```
