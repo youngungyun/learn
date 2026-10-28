@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  SpotBugs 제외 규칙.
+  제외는 "이 경고가 이 코드베이스에서는 오탐이다"라고 판단한 근거가 있을 때만 추가한다.
+  항목마다 이유를 주석으로 남겨야 나중에 다시 켤지 판단할 수 있다.
+-->
+<FindBugsFilter>
+
+  <!-- 스프링 의존성 주입: 생성자로 받은 빈(Repository, Service)을 필드에 저장하는 것은 의도된 설계이다. -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+
+  <!-- 같은 이유로 DTO(record)와 엔티티의 접근자 오탐을 막는다. 가변 객체를 노출하는 코드가 생기면 이 항목을 다시 검토한다. -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+  </Match>
+
+  <!-- 생성자에서 인자를 검증하며 예외를 던지는 것은 도메인 객체의 불변식을 지키는 정상적인 패턴이다. -->
+  <Match>
+    <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+  </Match>
+
+</FindBugsFilter>

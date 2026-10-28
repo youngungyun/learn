@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: meetlab
+  jpa:
+    open-in-view: false
+
+server:
+  shutdown: graceful
