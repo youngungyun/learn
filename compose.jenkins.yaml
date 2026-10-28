@@ -1,0 +1,25 @@
+# 학습용 Jenkins. 실행: docker compose -f compose.jenkins.yaml up -d --build
+# 접속: http://localhost:8081  (계정 admin / 비밀번호는 JENKINS_ADMIN_PASSWORD, 기본값 admin)
+#
+# 주의: 컨트롤러가 직접 빌드하고, 도커 소켓과 root 권한을 쓰는 로컬 학습용 구성이다.
+#       운영에서는 빌드를 별도 에이전트로 분리하고 소켓 마운트를 쓰지 않는다.
+name: meetlab-jenkins
+
+services:
+  jenkins:
+    build: ./jenkins
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      # 빌드 대상 저장소(읽기 전용). Jenkins는 이 경로를 git clone 한다. 커밋된 내용만 빌드된다.
+      - ./:/repo:ro
+      # Testcontainers(2단계)가 도커를 쓸 수 있게 한다.
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jenkins_home:
