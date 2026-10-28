@@ -53,3 +53,14 @@ docker compose up -d postgres prometheus grafana
 # Prometheus   http://localhost:9090   (Status > Targets 에서 meetlab 이 UP 인지 확인)
 # Grafana      http://localhost:3000   (admin / admin, "meetlab 개요" 대시보드)
 ```
+
+## stage 4 실행 방법 (k6)
+
+```bash
+docker compose up -d postgres prometheus grafana
+./gradlew bootRun
+# 결과를 Prometheus 로 보내며 실행 (Grafana "meetlab k6 부하 테스트" 대시보드에서 실시간 확인)
+docker compose run --rm k6 run -o experimental-prometheus-rw /scripts/smoke.js
+docker compose run --rm k6 run -o experimental-prometheus-rw /scripts/api-load.js
+docker compose run --rm k6 run -o experimental-prometheus-rw /scripts/signaling-load.js
+```
